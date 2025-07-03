@@ -8,8 +8,8 @@ namespace MiniDownloadManager.Models
 {
     public class Validators
     {
-        public int? ram { get; set; }
-        public int? os { get; set; }
-        public int? disk { get; set; }
+        public int? Ram { get; set; }
+        public string Os { get; set; }
+        public long? Disk { get; set; }
     }
 }
