@@ -66,40 +66,28 @@ namespace MiniDownloadManager
         private async void buttonDownload_Click(object sender, EventArgs e)
         {
             var items = await FetchDownloadItemsAsync();
-
-            // סינון לפי Validators
-            var filteredItems = items.Where(i => IsValid(i)).ToList();
-
-            var bestItem = filteredItems.OrderByDescending(i => i.Score).FirstOrDefault();
+            var bestItem = items.OrderByDescending(i => i.Score).FirstOrDefault();
 
             if (bestItem == null)
             {
-                MessageBox.Show("No compatible item available to download.");
+                MessageBox.Show("No item available to download.");
+                return;
+            }
+
+            string tempPath = Path.GetTempPath();
+            string fileName = Path.GetFileName(bestItem.FileURL);
+            string fullPath = Path.Combine(tempPath, fileName);
+
+            if (File.Exists(fullPath))
+            {
+                MessageBox.Show($"File already downloaded:\n{fullPath}");
+                Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
                 return;
             }
 
             try
             {
-                string tempPath = Path.GetTempPath();
-                string fileName = Path.GetFileName(bestItem.FileURL);
-                string fullPath = Path.Combine(tempPath, fileName);
-
-                if (File.Exists(fullPath))
-                {
-                    MessageBox.Show($"File already downloaded:\n{fullPath}");
-                    Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
-                    return;
-                }
-
-                using HttpClient client = new HttpClient();
-                using var response = await client.GetAsync(bestItem.FileURL, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
-
-                using (var stream = await response.Content.ReadAsStreamAsync())
-                using (var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    await stream.CopyToAsync(fs);
-                }
+                await DownloadFileWithProgress(bestItem.FileURL, fullPath);
 
                 MessageBox.Show("Download complete!");
 
@@ -161,5 +149,50 @@ namespace MiniDownloadManager
             var drive = new DriveInfo(Path.GetPathRoot(folderPath));
             return drive.AvailableFreeSpace;
         }
+
+        private async Task DownloadFileWithProgress(string url, string destinationFilePath)
+        {
+            using HttpClient client = new HttpClient();
+            using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            var canReportProgress = totalBytes != -1;
+
+            using var contentStream = await response.Content.ReadAsStreamAsync();
+            using var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            var buffer = new byte[8192];
+            long totalRead = 0;
+            int read;
+
+            progressBar.Invoke((Action)(() =>
+            {
+                progressBar.Value = 0;
+                progressBar.Visible = true;
+                progressBar.Maximum = 100;
+            }));
+
+            while ((read = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                await fileStream.WriteAsync(buffer, 0, read);
+                totalRead += read;
+
+                if (canReportProgress)
+                {
+                    int progress = (int)((totalRead * 100L) / totalBytes);
+                    progressBar.Invoke((Action)(() =>
+                    {
+                        progressBar.Value = progress;
+                    }));
+                }
+            }
+
+            progressBar.Invoke((Action)(() =>
+            {
+                progressBar.Visible = false;
+            }));
+        }
+
     }
 }
