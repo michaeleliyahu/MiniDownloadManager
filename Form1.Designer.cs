@@ -28,18 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             buttonDownload = new Button();
             labelTitle = new Label();
+            labelFileTitle = new Label();
             pictureBoxImage = new PictureBox();
             progressBar = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImage).BeginInit();
             SuspendLayout();
+
+            // labelFileTitle
+            labelFileTitle.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            labelFileTitle.Location = new Point(0, 90);
+            labelFileTitle.Name = "labelFileTitle";
+            labelFileTitle.Size = new Size(800, 25);
+            labelFileTitle.TabIndex = 4;
+            labelFileTitle.Text = ""; // יוזן בזמן ריצה
+            labelFileTitle.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // buttonDownload
             // 
-            buttonDownload.Location = new Point(117, 113);
+            buttonDownload.Location = new Point(356, 320); // Centered horizontally
             buttonDownload.Name = "buttonDownload";
-            buttonDownload.Size = new Size(75, 23);
+            buttonDownload.Size = new Size(88, 30); // Slightly larger button
             buttonDownload.TabIndex = 0;
             buttonDownload.Text = "Download";
             buttonDownload.UseVisualStyleBackColor = true;
@@ -47,27 +58,31 @@
             // 
             // labelTitle
             // 
-            labelTitle.AutoSize = true;
-            labelTitle.Location = new Point(426, 201);
+            labelTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold | FontStyle.Underline, GraphicsUnit.Point); // Larger, bold, and underlined
+            labelTitle.Location = new Point(0, 50); // Positioned near the top
             labelTitle.Name = "labelTitle";
-            labelTitle.Size = new Size(38, 15);
+            labelTitle.Size = new Size(800, 30);
             labelTitle.TabIndex = 1;
-            labelTitle.Text = "Waiting for data...";
+            labelTitle.Text = "Mini-Download Manager";
+            labelTitle.TextAlign = ContentAlignment.MiddleCenter; // Center aligned text
             // 
             // pictureBoxImage
             // 
-            pictureBoxImage.Location = new Point(220, 256);
+            pictureBoxImage.Image = (Image)resources.GetObject("pictureBoxImage.Image"); // Assuming the apple image is in resources
+            pictureBoxImage.Location = new Point(300, 180); // Centered and positioned below "Apple"
             pictureBoxImage.Name = "pictureBoxImage";
-            pictureBoxImage.Size = new Size(100, 50);
+            pictureBoxImage.Size = new Size(200, 120); // Larger size for the image
+            pictureBoxImage.SizeMode = PictureBoxSizeMode.Zoom; // To fit the image within bounds
             pictureBoxImage.TabIndex = 2;
             pictureBoxImage.TabStop = false;
             // 
             // progressBar
             // 
-            progressBar.Location = new Point(227, 181);
+            progressBar.Location = new Point(200, 370); // Positioned below the download button
             progressBar.Name = "progressBar";
-            progressBar.Size = new Size(100, 23);
+            progressBar.Size = new Size(400, 23); // Wider progress bar
             progressBar.TabIndex = 3;
+            progressBar.Visible = false; // Initially invisible
             // 
             // Form1
             // 
@@ -75,11 +90,12 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(progressBar);
+            Controls.Add(labelFileTitle);
             Controls.Add(pictureBoxImage);
             Controls.Add(labelTitle);
             Controls.Add(buttonDownload);
             Name = "Form1";
-            Text = "Form1";
+            Text = "MainWindow"; // Changed title to match the image
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBoxImage).EndInit();
             ResumeLayout(false);
@@ -92,7 +108,6 @@
         private Label labelTitle;
         private PictureBox pictureBoxImage;
         private ProgressBar progressBar;
+        private Label labelFileTitle;
     }
-
-
 }

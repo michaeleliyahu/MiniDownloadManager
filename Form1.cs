@@ -27,7 +27,7 @@ namespace MiniDownloadManager
 
                 if (bestItem != null)
                 {
-                    labelTitle.Text = bestItem.Title;
+                    labelFileTitle.Text = bestItem.Title;
                     pictureBoxImage.Load(bestItem.ImageURL);
                 }
                 else
@@ -93,10 +93,11 @@ namespace MiniDownloadManager
                 {
                     await stream.CopyToAsync(fs);
 
-                MessageBox.Show("Download complete!");
+                    MessageBox.Show("Download complete!");
 
-                Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
-                Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
+                    Process.Start(new ProcessStartInfo(fullPath) { UseShellExecute = true });
+                    Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
+                }
             }
             catch (Exception ex)
             {
