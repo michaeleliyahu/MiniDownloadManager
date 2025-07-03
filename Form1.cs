@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -18,7 +17,7 @@ namespace MiniDownloadManager
             this.Load += Form1_Load;
         }
 
-        private async void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object? sender, EventArgs e)
         {
             try
             {
@@ -117,12 +116,30 @@ namespace MiniDownloadManager
                 MessageBox.Show("Error during download: " + ex.Message);
             }
         }
+        private bool CheckEmpty(DownloadItem item)
+        {
+            return !string.IsNullOrWhiteSpace(item.Title)
+                && !string.IsNullOrWhiteSpace(item.ImageURL)
+                && !string.IsNullOrWhiteSpace(item.FileURL)
+                && item.Score >= 0;
+        }
         private bool IsValid(DownloadItem item)
         {
-            if (item.Validators == null)
-                return true; // אין מגבלות, מתאים אוטומטית
+            if (string.IsNullOrWhiteSpace(item.Title))
+                return false;
 
-            // 1. בדיקת RAM
+            if (string.IsNullOrWhiteSpace(item.ImageURL))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(item.FileURL))
+                return false;
+
+            if (item.Score < 0)
+                return false;
+
+            if (item.Validators == null)
+                return true; 
+
             if (item.Validators.Ram.HasValue)
             {
                 var availableRamMb = GetAvailableRamInMB();
@@ -130,7 +147,6 @@ namespace MiniDownloadManager
                     return false;
             }
 
-            // 2. בדיקת OS
             if (!string.IsNullOrEmpty(item.Validators.Os))
             {
                 var minVersion = new Version(item.Validators.Os);
@@ -139,7 +155,6 @@ namespace MiniDownloadManager
                     return false;
             }
 
-            // 3. בדיקת Disk (פנוי ב־temp)
             if (item.Validators.Disk.HasValue)
             {
                 var freeBytes = GetFreeDiskSpaceInBytes(Path.GetTempPath());
@@ -152,7 +167,6 @@ namespace MiniDownloadManager
 
         private int GetAvailableRamInMB()
         {
-            // פשוט השיטה - מושך זיכרון פנוי במגה בייט:
             var availableBytes = new Microsoft.VisualBasic.Devices.ComputerInfo().AvailablePhysicalMemory;
             return (int)(availableBytes / (1024 * 1024));
         }

@@ -9,10 +9,10 @@ namespace MiniDownloadManager.Models
 {
     public class DownloadItem
     {
-        public string Title { get; set; }
-        public string ImageURL { get; set; }
-        public string FileURL { get; set; }
+        public string? Title { get; set; }
+        public string? ImageURL { get; set; }
+        public string? FileURL { get; set; }
         public int Score { get; set; }
-        public Validators Validators { get; set; }
+        public Validators? Validators { get; set; }
     }
 }
