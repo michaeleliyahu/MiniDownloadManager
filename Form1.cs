@@ -32,15 +32,21 @@ namespace MiniDownloadManager
                 {
                     labelFileTitle.Text = bestItem.Title;
                     pictureBoxImage.Load(bestItem.ImageURL);
+                    labelTitle.Text = "Mini-Download Manager";
                 }
                 else
                 {
-                    labelTitle.Text = "No compatible items available";
+                    labelTitle.Text = "Mini-Download Manager";
+                    labelFileTitle.Text = "No compatible items available";
+                    pictureBoxImage.Image = null;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error loading items: " + ex.Message);
+                labelTitle.Text = "Failed to load items.";
+                labelFileTitle.Text = "";
+                pictureBoxImage.Image = null;
             }
         }
         public async Task<List<DownloadItem>> FetchDownloadItemsAsync()
@@ -49,18 +55,30 @@ namespace MiniDownloadManager
 
             using HttpClient client = new HttpClient();
 
-            var response = await client.GetAsync(url);
+            HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             string json = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<DownloadItem>(); 
+            }
 
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
 
-            List<DownloadItem> items = JsonSerializer.Deserialize<List<DownloadItem>>(json, options);
-            return items;
+            try
+            {
+                List<DownloadItem>? items = JsonSerializer.Deserialize<List<DownloadItem>>(json, options);
+                return items ?? new List<DownloadItem>(); 
+            }
+            catch (JsonException)
+            {
+                return new List<DownloadItem>();
+            }
         }
 
         private async void buttonDownload_Click(object sender, EventArgs e)
